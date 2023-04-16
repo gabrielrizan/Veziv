@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 
 const PortfolioForm = ({onAdd, oldData}) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState('');
   const [customerLink, setCustomerLink] = useState('');
+  const [file, setFile] = useState(null);
+  const fileInput = useRef(null);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -23,6 +24,30 @@ const PortfolioForm = ({onAdd, oldData}) => {
     setDescription('');
     setImage('');
     setCustomerLink('');
+    setFile(null);
+  };
+
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      setImage(event.target.result);
+    };
+    reader.readAsDataURL(event.target.files[0]);
+  }
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      setImage(event.target.result);
+    };
+    reader.readAsDataURL(event.dataTransfer.files[0]);
+    setFile(event.dataTransfer.files[0]);
   };
 
   return (
@@ -62,6 +87,34 @@ const PortfolioForm = ({onAdd, oldData}) => {
             />
           </div>
           <div className="form-group">
+            <label htmlFor='file'>Upload Image:</label>
+            <input
+              type='file'
+              id='file'
+              onChange={handleFileChange}
+              ref={fileInput}
+              style={{ display: 'none' }}
+            />
+            <div
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onClick={() => fileInput.current.click()}
+              className="d-flex justify-content-center align-items-center"
+              style={{ height: '200px', width: '300px', border: '1px solid black' }}
+            >
+              {file || image ? (
+                <img
+                  src={file ? URL.createObjectURL(file) : image}
+                  alt="portfolio item"
+                  style={{ maxWidth: '100%', maxHeight: '100%' }}
+                />
+              ) : (
+                <p>Drag and drop image or click here to select file.</p>
+              )}
+            </div>
+          </div>
+          
+          <div className="form-group">
             <label htmlFor='customerLink'>Customer Link:</label>
             <input
               type='text'
@@ -72,7 +125,7 @@ const PortfolioForm = ({onAdd, oldData}) => {
               required
             />
           </div>
-          <button type='submit' className="btn btn-success">Add Item</button>
+          <button type='submit' className="btn btn-primary">Add</button>
         </form>
       </div>
     </div>

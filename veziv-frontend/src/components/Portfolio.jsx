@@ -6,7 +6,7 @@ import { useState } from 'react'
 
 const Portfolio = () => { 
   const [portfolioItems, setPortfolioItems] = useState(portfolioData);
-
+  
   
   return (
     <>
